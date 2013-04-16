@@ -3,14 +3,15 @@
 
 #include <zlib.h>
 
+/* These parameters can be set on server side when bloom filter is created */
 const int ONE_MILLION = 1000000
-// TODO should we do 2 million instead?
+// Should we do 2 million instead?
 const int SIZE_BITS = ONE_MILLION
 const int ONE_DAY = 24 * 60 * 60
-// TODO is one day too large? reduce time diff?
+// Is one day too large? reduce time diff?
 const int TIME_DIFF = ONE_DAY
 
-// TODO version not needed anymore due to curl update?
+// version, timestamp not needed anymore due to curl update?
 typedef unsigned int (*hashfunc_t) (const char *);
 typedef struct {
     //int version;
@@ -27,8 +28,8 @@ bloom_filter_t* bf_init(size_t bfsize, size_t num_hash_func, ...);
 /* destructor */
 int bloom_filter_destroy(bloom_filter_t* bloom_filter);
 
-/* TODO Check server for timestamp and version.
- * Update once a day. */
+/* Check server for update once a day
+ * If change in file download using curl */
 int check_for_update(bloom_filter_t* bloom_filter);
 
 // int add_domain(bloom_filter_t* bloom_filter, const char* domain);
