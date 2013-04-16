@@ -56,10 +56,11 @@ int bloom_filter_destroy(bloom_filter_t* bloom_filter) {
 int check_for_update(bloom_filter_t* bloom_filter) {
     /* check TS */
     int curr_time = (int)time(NULL)
-    if ((bloom_filter-> ts - curr_time) > TIME_DIFF) {
+    if ((curr_time - bloom_filter-> ts) > TIME_DIFF) {
         /* TODO use curl download option from #L 105 */
         // TODO https://github.com/projectbismark/bismark-packages/blob/master/utils/bismark-experiments-manager/files/usr/bin/merge-experiments#L105
-        
+        // TODO curl -z : transfer based on time condition
+        /* curl -s -f -z -o filename */ 
         return 0
     }
     return -1
