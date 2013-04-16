@@ -57,10 +57,10 @@ int check_for_update(bloom_filter_t* bloom_filter) {
     /* check TS */
     int curr_time = (int)time(NULL)
     if ((curr_time - bloom_filter-> ts) > TIME_DIFF) {
-        /* TODO use curl download option from #L 105 */
-        // TODO https://github.com/projectbismark/bismark-packages/blob/master/utils/bismark-experiments-manager/files/usr/bin/merge-experiments#L105
-        // TODO curl -z : transfer based on time condition
-        /* curl -s -f -z -o filename */ 
+        /* use curl download option from #L 105
+         * transfer based on time condition using -z
+         * TODO add error catch block in case file doesnt exist on server */
+        int res = system("curl -s -f -z bintest -O http://sites.noise.gatech.edu/~sarthak/files/bloomfilter/bintest");
         return 0
     }
     return -1
