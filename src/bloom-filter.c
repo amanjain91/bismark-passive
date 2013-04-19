@@ -90,7 +90,7 @@ int* add_domain(const bloom_filter_t* bloom_filter, const char* domain) {
 int check_domain(const bloom_filter_t* bloom_filter, const char* domain) {
     size_t n;
     for(n=0; n<bloom_filter->num_hash_func; ++n) {
-        if(!(GETBIT(bloom_filter->bf, bloom_filter->hf[n](domain)%bloom_filter->bfsize))) return 0;
+        if(!(GETBIT(bloom_filter->bf, bloom_filter->hf[n](domain)%bloom_filter->bfsize))) return -1;
     }
-    return 1;
-}
+    return 0;
+}dd origin

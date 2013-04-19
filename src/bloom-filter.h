@@ -37,7 +37,7 @@ int check_for_update(bloom_filter_t* bloom_filter);
  * Subdomain matching should work correctly, i.e. www.foo.com and foo.com
  * hash to the same correct positions.
  * Need to use appropriate hash functions here. 
- * Returns TRUE if domain exists in bf else FALSE */
+ * Returns 0 if domain exists in bf else -1 */
 int check_domain(const bloom_filter_t* bloom_filter, const char* domain);
 
 #endif
