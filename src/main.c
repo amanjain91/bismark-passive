@@ -51,6 +51,13 @@
 #include "util.h"
 #include "whitelist.h"
 
+/* bloomFilter() code in dns_parser.c
+ * #ifndef BLOOM_WHITELIST_H
+ * #include"bloom.h"
+ * #include"hash-config.h"
+ * #endif
+ */
+
 static pcap_t* pcap_handle = NULL;
 
 static packet_series_t packet_data;
