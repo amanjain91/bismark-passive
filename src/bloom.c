@@ -45,8 +45,8 @@ BLOOM *bloom_create(FILE* fptr, size_t size, size_t nfuncs, ...)
     /* Read downloaded bloom filter into array buffer */
     nread = fread(bf, (size+CHAR_BIT-1)/CHAR_BIT, sizeof(char), fptr);
 
-    /* printf("%d\n%d\n", (size+CHAR_BIT-1)/CHAR_BIT, sizeof(char)); */
-    /* printf("Read %d bytes\n", nread); */
+    printf("CHECK: read %d bytes into bf.\n", nread);
+    printf("%d\n%d\n", (size+CHAR_BIT-1)/CHAR_BIT, sizeof(char));
 
     /* assign functions */
     va_start(l, nfuncs);
@@ -61,6 +61,7 @@ BLOOM *bloom_create(FILE* fptr, size_t size, size_t nfuncs, ...)
     /* assign bloom->a */
     bloom->a = bf;
 
+    printf("Bloom filter success.\n");
     return bloom;
 }
 
@@ -74,35 +75,27 @@ int bloom_download()
     return res;
 }
 
-/* Destructor */
-void bloom_destroy(BLOOM *bloom)
-{
-    free(bloom->a);
-    free(bloom->funcs);
-    free(bloom);
-    /* printf("Destroy\n"); */
-}
-
-/* TODO shift bloom_check to bloom-whitelist.c */
+/* Call bloom_check from bloom-whitelist.c */
 int bloom_check(BLOOM *bloom, const char *s)
 {
     size_t n;
+    printf("Enter bloom_check()\n nfuncs = %d.", bloom->nfuncs);
 
     for(n=0; n<bloom->nfuncs; ++n) {
+        printf("GETBIT: %s, %d\n", s, GETBIT(bloom->a, bloom->funcs[n](s)%bloom->asize));
         if(!(GETBIT(bloom->a, bloom->funcs[n](s)%bloom->asize))) return -1;
     }
-    /* printf("%s exists. return 1\n", s); */
+    printf("%s exists. return 0\n", s);
 
     return 0;
 }
 
-/* TODO shift bloomFilter() to bloom-whitelist.c */
+/* shift bloomFilter() to bloom-whitelist.c
 BLOOM* bloomFilter()
 {
     FILE* fp;
     BLOOM *bloom;
 
-    /* Download bloom filter */
     if(bloom_download()) {
         perror("Could not download filter from server.");
     }
@@ -119,3 +112,4 @@ BLOOM* bloomFilter()
 
     return bloom;
 }
+*/
