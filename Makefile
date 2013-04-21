@@ -53,7 +53,7 @@ SRCS = \
 	$(SRC_DIR)/sha1.c \
 	$(SRC_DIR)/upload_failures.c \
 	$(SRC_DIR)/util.c \
-	$(SRC_DIR)/whitelist.c\
+	$(SRC_DIR)/whitelist.c \
 	$(SRC_DIR)/bloom-whitelist.c
 OBJS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
@@ -67,7 +67,7 @@ TEST_SRCS = \
 	$(SRC_DIR)/sha1.c \
 	$(SRC_DIR)/tests.c \
 	$(SRC_DIR)/util.c \
-	$(SRC_DIR)/whitelist.c
+	$(SRC_DIR)/whitelist.c \
 	$(SRC_DIR)/bloom-whitelist.c
 TEST_OBJS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(TEST_SRCS))
 
