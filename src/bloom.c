@@ -4,12 +4,26 @@
 #include<string.h>
 
 #include"bloom.h"
-#include"hash-config.h"
 
 #define SETBIT(a, n) (a[n/CHAR_BIT] |= (1<<(n%CHAR_BIT)))
 #define GETBIT(a, n) (a[n/CHAR_BIT] & (1<<(n%CHAR_BIT)))
 
+/* hash functions for bloom filter */
+unsigned int sax_hash(const char *key)
+{
+    unsigned int h=0;
+    while(*key) h^=(h<<5)+(h>>2)+(unsigned char)*key++;
+    return h;
+}
 
+unsigned int sdbm_hash(const char *key)
+{
+    unsigned int h=0;
+    while(*key) h=(unsigned char)*key++ + (h<<6) + (h<<16) - h;
+    return h;
+}
+
+/* Initializer */
 BLOOM *bloom_create(FILE* fptr, size_t size, size_t nfuncs, ...)
 {
     BLOOM *bloom;
@@ -50,6 +64,7 @@ BLOOM *bloom_create(FILE* fptr, size_t size, size_t nfuncs, ...)
     return bloom;
 }
 
+/* TODO remove download from here and add it as a chron job */
 int bloom_download()
 {
     int res;
@@ -59,42 +74,29 @@ int bloom_download()
     return res;
 }
 
-int bloom_destroy(BLOOM *bloom)
+/* Destructor */
+void bloom_destroy(BLOOM *bloom)
 {
     free(bloom->a);
     free(bloom->funcs);
     free(bloom);
     /* printf("Destroy\n"); */
-
-    return 0;
 }
 
+/* TODO shift bloom_check to bloom-whitelist.c */
 int bloom_check(BLOOM *bloom, const char *s)
 {
     size_t n;
 
     for(n=0; n<bloom->nfuncs; ++n) {
-        if(!(GETBIT(bloom->a, bloom->funcs[n](s)%bloom->asize))) return 0;
+        if(!(GETBIT(bloom->a, bloom->funcs[n](s)%bloom->asize))) return -1;
     }
     /* printf("%s exists. return 1\n", s); */
 
-    return 1;
-}
-
-/*
-int bloom_add(BLOOM *bloom, const char *s)
-{
-    size_t n;
-    printf("Add %s at time %d\n",s,(int)time(NULL));
-
-    for(n=0; n<bloom->nfuncs; ++n) {
-        SETBIT(bloom->a, bloom->funcs[n](s)%bloom->asize);
-    }
     return 0;
 }
-*/
 
-/* TODO ADD THIS FUNCTION TO main.c */
+/* TODO shift bloomFilter() to bloom-whitelist.c */
 BLOOM* bloomFilter()
 {
     FILE* fp;
@@ -117,20 +119,3 @@ BLOOM* bloomFilter()
 
     return bloom;
 }
-
-    /* check block - enter name to check
-    while(fgets(line, 1024, stdin)) {
-        if((p=strchr(line, '\r'))) *p='\0';
-        if((p=strchr(line, '\n'))) *p='\0';
-
-        p=strtok(line, " \t,;\r\n!");
-        while(p) {
-            if(!bloom_check(bloom, p)) {
-                printf("No match for word \"%s\"\n", p);
-            }
-            p=strtok(NULL, " \t,.;:\r\n?!-/()");
-        }
-    }
-
-    bloom_destroy(bloom);
-    */

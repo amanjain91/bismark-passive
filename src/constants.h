@@ -103,4 +103,15 @@ enum reserved_flow_indices {
 #define NUM_MICROS_PER_SECOND 1e6
 #define TIMEVAL_TO_MICROS(tv) ((tv)->tv_sec * NUM_MICROS_PER_SECOND + (tv)->tv_usec)
 
+/* BLOOM FILTER PARAMETERS */
+#ifndef BLOOMSIZE
+#define BLOOMSIZE 2500000
+#endif
+#ifndef NUMHASH
+#define NUMHASH 2
+#endif
+#ifndef PATH_TO_FILTER
+#define PATH_TO_FILTER = "/tmp/filter.bin";
+#endif
+
 #endif

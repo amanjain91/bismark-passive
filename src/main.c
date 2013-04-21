@@ -51,12 +51,9 @@
 #include "util.h"
 #include "whitelist.h"
 
-/* bloomFilter() code in dns_parser.c
- * #ifndef BLOOM_WHITELIST_H
- * #include"bloom.h"
- * #include"hash-config.h"
- * #endif
- */
+#ifdef _BLOOM_WHITELIST_H_
+#include "bloom-whitelist.h"
+#endif
 
 static pcap_t* pcap_handle = NULL;
 
@@ -69,6 +66,9 @@ static http_table_t http_table;
 
 static address_table_t address_table;
 static domain_whitelist_t domain_whitelist;
+#ifdef _BLOOM_WHITELIST_H_
+static bloom_whitelist_t bloom_whitelist;
+#endif
 static drop_statistics_t drop_statistics;
 #ifdef ENABLE_FREQUENT_UPDATES
 static device_throughput_table_t device_throughput_table;
@@ -389,7 +389,11 @@ static void write_update() {
   packet_series_init(&packet_data);
   flow_table_advance_base_timestamp(&flow_table, current_timestamp);
   dns_table_destroy(&dns_table);
-  dns_table_init(&dns_table, &domain_whitelist);
+  dns_table_init(&dns_table, &domain_whitelist
+#ifdef _BLOOM_WHITELIST_H_
+          &bloom_whitelist
+#endif
+          );
 #ifdef ENABLE_HTTP_URL
   http_table_destroy(&http_table);
   http_table_init(&http_table);
@@ -578,6 +582,12 @@ static int initialize_domain_whitelist(const char* const filename) {
   return 0;
 }
 
+#ifdef _BLOOM_WHITELIST_H_
+static int initialize_bloom_whitelist() {
+    return bloom_whitelist_init(&bloom_whitelist);
+}
+#endif
+
 int main(int argc, char *argv[]) {
   if (argc < 2) {
     fprintf(stderr, "Usage: %s <interface> [whitelist]\n", argv[0]);
@@ -594,6 +604,11 @@ int main(int argc, char *argv[]) {
   if (argc < 3 || initialize_domain_whitelist(argv[2])) {
     fprintf(stderr, "Error loading domain whitelist; whitelisting disabled.\n");
   }
+#ifdef _BLOOM_WHITELIST_H_
+  if (initialize_bloom_whitelist()) {
+      fprintf(stderr, "Error loading bloom filter. Disable bloom whitelist.\n");
+  }
+#endif
 
 #ifndef DISABLE_ANONYMIZATION
   if (anonymization_init()) {
@@ -608,7 +623,11 @@ int main(int argc, char *argv[]) {
 #endif
   packet_series_init(&packet_data);
   flow_table_init(&flow_table);
-  dns_table_init(&dns_table, &domain_whitelist);
+  dns_table_init(&dns_table, &domain_whitelist
+#ifdef _BLOOM_WHITELIST_H_
+          , &bloom_whitelist
+#endif
+          );
 #ifdef ENABLE_HTTP_URL
   http_table_init(&http_table);
 #endif

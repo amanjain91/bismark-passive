@@ -9,6 +9,10 @@
 #include "flow_table.h"
 #include "whitelist.h"
 
+#ifdef _BLOOM_WHITELIST_H_
+#include"bloom-whitelist.h"
+#endif
+
 /* A single A record from a DNS response. */
 typedef struct {
   uint16_t packet_id;
@@ -32,6 +36,9 @@ typedef struct {
   int a_length, cname_length;
   int num_dropped_a_entries, num_dropped_cname_entries;
   domain_whitelist_t* whitelist;
+#ifdef _BLOOM_WHITLIST_H_
+  bloom_whitelist_t* bloom
+#endif
 } dns_table_t;
 
 /* whitelist can be NULL, in which case no whitelist is performed. Does not

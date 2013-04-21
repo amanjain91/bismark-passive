@@ -7,6 +7,10 @@
 #include "util.h"
 #include "whitelist.h"
 
+#ifdef _BLOOM_WHITELIST_H_
+#include "bloom-whitelist.h"
+#endif
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -671,8 +675,24 @@ START_TEST(test_whitelist_can_lookup) {
   fail_unless(domain_whitelist_lookup(&whitelist, "ar.org"));
 
   domain_whitelist_destroy(&whitelist);
+
+#ifdef _BLOOM_WHITELIST_H
+  /* test Bloom Whitelist */
+  bloom_whitelist_t bloom_whitelist;
+  bloom_whitelist_init(&bloom_whitelist);
+
+  fail_if(bloom_whitelist_lookup(&bloom_whitelist, "saudieng.net"));
+  fail_if(bloom_whitelist_lookup(&bloom_whitelist, "thick-click.com"));
+  fail_if(bloom_whitelist_lookup(&bloom_whitelist, "webfo.biz"));
+
+  fail_unless(bloom_whitelist_lookup(&bloom_whitelist, ""));
+  fail_unless(bloom_whitelist_lookup(&bloom_whitelist, "google.com"));
+#endif
+
 }
 END_TEST
+
+
 
 /********************************************************
  * Device throughput table

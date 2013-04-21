@@ -8,16 +8,20 @@
 #include "util.h"
 #include "whitelist.h"
 
-#ifndef BLOOM_WHITELIST_H
-#include"bloom.h"
-/* for PATH_TO_FILTER
- * #include"hash-config.h"
- */
+#ifdef _BLOOM_WHITELIST_H_
+#include"bloom-whitelist.h"
 #endif
 
-void dns_table_init(dns_table_t* table, domain_whitelist_t* whitelist) {
+void dns_table_init(dns_table_t* table, domain_whitelist_t* whitelist
+#ifdef _BLOOM_WHITELIST_H_
+        , bloom_whitelist_t* bloom
+#endif
+        ) {
   memset(table, '\0', sizeof(*table));
   table->whitelist = whitelist;
+#ifdef _BLOOM_WHITELIST_H_
+  table->bloom = bloom;
+#endif
 }
 
 void dns_table_destroy(dns_table_t* const table) {
@@ -54,6 +58,9 @@ int dns_table_add_cname(dns_table_t* const table,
 }
 
 int dns_table_write_update(dns_table_t* const table, gzFile handle) {
+  /* For detecting malware using bloom filter */
+  int malware_flag = -1;
+
   if (!gzprintf(handle,
                 "%d %d\n",
                 table->num_dropped_a_entries,
@@ -62,13 +69,6 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
     return -1;
   }
   int idx;
-
-#ifndef BLOOM_WHITELIST_H
-  int malware_flag = 0;
-  BLOOM *bloom;
-  bloom = bloomFilter();
-#endif
-
   for (idx = 0; idx < table->a_length; ++idx) {
     uint64_t address_digest;
 #ifndef DISABLE_ANONYMIZATION
@@ -82,25 +82,16 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
     unsigned int domain_anonymized;
     const char* domain_string;
 
-#ifndef BLOOM_WHITELIST_H
-    if (bloom_check(bloom, table->a_entries[idx].domain_name)) {
-        malware_flag = 1;
-        /* TODO try storing malware info if flag is 1
-         * storeMalInfo()
-         * */
-    }
-    else {
-        malware_flag = 0;
-    }
+#ifdef _BLOOM_WHITELIST_H_
+    malware_flag = bloom_whitelist_lookup(table->bloom, table->a_entries[idx].domain_name);
+#else
+    malware_flag = -1;
 #endif
 
     if (table->whitelist
         && !domain_whitelist_lookup(table->whitelist,
                                     table->a_entries[idx].domain_name)
-#ifndef BLOOM_WHITELIST_H
-        || malware_flag
-#endif
-        ) {
+        || !malware_flag) {
       domain_anonymized = 0;
       domain_string = table->a_entries[idx].domain_name;
     } else {
@@ -137,24 +128,17 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
     const char* domain_string;
     const char* cname_string;
 
-#ifndef BLOOM_WHITELIST_H
-    if (bloom_check(bloom, table->cname_entries[idx].domain_name)) {
-        malware_flag = 1;
-        /* try storing malware info if flag is 1 */
-    }
-    else {
-        malware_flag = 0;
-    }
+#ifdef _BLOOM_WHITELIST_H_
+    malware_flag = bloom_whitelist_lookup(table->bloom, table->cname_entries[idx].domain_name);
+#else
+    malware_flag = -1;
 #endif
 
 #ifndef DISABLE_ANONYMIZATION
     if (table->whitelist
         && !domain_whitelist_lookup(table->whitelist,
                                     table->cname_entries[idx].domain_name)
-#ifndef BLOOM_WHITELIST_H
-        || malware_flag
-#endif
-        ) {
+        || !malware_flag) {
 #endif
       domain_anonymized = 0;
       domain_string = table->cname_entries[idx].domain_name;
@@ -173,24 +157,17 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
     }
 #endif
 
-#ifndef BLOOM_WHITELIST_H
-    if (bloom_check(bloom, table->cname_entries[idx].cname)) {
-        malware_flag = 1;
-        /* try storing malware info if flag is 1 */
-    }
-    else {
-        malware_flag = 0;
-    }
+#ifdef _BLOOM_WHITELIST_H_
+    malware_flag = bloom_whitelist_lookup(table->bloom, table->cname_entries[idx].domain_name);
+#else
+    malware_flag = -1;
 #endif
 
 #ifndef DISABLE_ANONYMIZATION
     if (table->whitelist
         && !domain_whitelist_lookup(table->whitelist,
                                     table->cname_entries[idx].cname)
-#ifndef BLOOM_WHITELIST_H
-        || malware_flag
-#endif
-        ) {
+        || !malware_flag) {
 #endif
       cname_anonymized = 0;
       cname_string = table->cname_entries[idx].cname;
