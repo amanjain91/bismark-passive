@@ -34,6 +34,9 @@ endif
 ifdef ENABLE_HTTP_URL
 CFLAGS += -DENABLE_HTTP_URL
 endif
+ifdef USE_BLOOM_FILTER
+CFLAGS += -DUSE_BLOOM_FILTER
+endif
 
 SRCS = \
 	$(SRC_DIR)/address_table.c \
