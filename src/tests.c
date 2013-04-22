@@ -684,6 +684,7 @@ START_TEST(test_whitelist_can_lookup) {
   fail_if(bloom_whitelist_lookup(&bloom_whitelist, "saudieng.net"));
   fail_if(bloom_whitelist_lookup(&bloom_whitelist, "thick-click.com"));
   fail_if(bloom_whitelist_lookup(&bloom_whitelist, "webfo.biz"));
+  fail_if(bloom_whitelist_lookup(&bloom_whitelist, "moneypuller.site90.net"));
 
   fail_unless(bloom_whitelist_lookup(&bloom_whitelist, ""));
   fail_unless(bloom_whitelist_lookup(&bloom_whitelist, "google.com"));

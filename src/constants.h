@@ -111,7 +111,11 @@ enum reserved_flow_indices {
 #define NUMHASH 2
 #endif
 #ifndef PATH_TO_FILTER
+<<<<<<< HEAD
 #define PATH_TO_FILTER "/tmp/filter.bin"
+=======
+#define PATH_TO_FILTER "tmp/filter.bin"
+>>>>>>> init
 #endif
 
 #endif
