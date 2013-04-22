@@ -2,12 +2,25 @@
 #define _BLOOM_WHITELIST_H_
 
 #include <zlib.h>
-#include "bloom.h"
 
-typedef BLOOM bloom_whitelist_t;
+#define DEBUG_BLOOM 0
 
-/* Initialize and load blooGETBIT(bloom->a, bloom->funcs[n](s)%bloom->asize)m filter. */
-int bloom_whitelist_init(bloom_whitelist_t* bloom);
+unsigned int sax_hash(const char *key);
+unsigned int sdbm_hash(const char *key);
+
+typedef unsigned int (*hashfunc_t)(const char *);
+typedef struct {
+    size_t asize;
+    unsigned char *a;
+    size_t nfuncs;
+    hashfunc_t *funcs;
+    /* int timestamp; */
+} bloom_whitelist_t;
+
+/* Initialize and load bloom filter. */
+void bloom_whitelist_init(bloom_whitelist_t* bloom);
+
+int bloom_whitelist_load(bloom_whitelist_t* bloom);
 
 void bloom_whitelist_destroy(bloom_whitelist_t* bloom);
 

@@ -584,7 +584,12 @@ static int initialize_domain_whitelist(const char* const filename) {
 
 #ifdef _BLOOM_WHITELIST_H_
 static int initialize_bloom_whitelist() {
-    return bloom_whitelist_init(&bloom_whitelist);
+    bloom_whitelist_init(&bloom_wl);
+    if (bloom_whitelist_load(&bloom_wl) < 0) {
+        perror("Cannot load bloom filter.\n");
+        return -1;
+    }
+    return 0;
 }
 #endif
 
@@ -606,7 +611,7 @@ int main(int argc, char *argv[]) {
   }
 #ifdef _BLOOM_WHITELIST_H_
   if (initialize_bloom_whitelist()) {
-      fprintf(stderr, "Error loading bloom filter. Disable bloom whitelist.\n");
+      fprintf(stderr, "Error initializing and loading bloom filter. Disable bloom whitelist.\n");
   }
 #endif
 
