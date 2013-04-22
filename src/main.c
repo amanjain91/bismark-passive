@@ -51,9 +51,7 @@
 #include "util.h"
 #include "whitelist.h"
 
-#ifdef _BLOOM_WHITELIST_H_
 #include "bloom-whitelist.h"
-#endif
 
 static pcap_t* pcap_handle = NULL;
 
@@ -391,7 +389,7 @@ static void write_update() {
   dns_table_destroy(&dns_table);
   dns_table_init(&dns_table, &domain_whitelist
 #ifdef _BLOOM_WHITELIST_H_
-          &bloom_whitelist
+          , &bloom_whitelist
 #endif
           );
 #ifdef ENABLE_HTTP_URL
@@ -584,8 +582,9 @@ static int initialize_domain_whitelist(const char* const filename) {
 
 #ifdef _BLOOM_WHITELIST_H_
 static int initialize_bloom_whitelist() {
-    bloom_whitelist_init(&bloom_wl);
-    if (bloom_whitelist_load(&bloom_wl) < 0) {
+    if (DEBUG_BLOOM) fprintf(stderr, "Enter bloom init\n");
+    bloom_whitelist_init(&bloom_whitelist);
+    if (bloom_whitelist_load(&bloom_whitelist) < 0) {
         perror("Cannot load bloom filter.\n");
         return -1;
     }
@@ -605,6 +604,8 @@ int main(int argc, char *argv[]) {
       = start_timeval.tv_sec * NUM_MICROS_PER_SECOND + start_timeval.tv_usec;
 
   initialize_bismark_id();
+
+  if (DEBUG_BLOOM) fprintf(stderr,"initialize bloom\n");
 
   if (argc < 3 || initialize_domain_whitelist(argv[2])) {
     fprintf(stderr, "Error loading domain whitelist; whitelisting disabled.\n");

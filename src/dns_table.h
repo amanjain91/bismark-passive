@@ -9,9 +9,7 @@
 #include "flow_table.h"
 #include "whitelist.h"
 
-#ifdef _BLOOM_WHITELIST_H_
-#include"bloom-whitelist.h"
-#endif
+#include "bloom-whitelist.h"
 
 /* A single A record from a DNS response. */
 typedef struct {
@@ -36,14 +34,18 @@ typedef struct {
   int a_length, cname_length;
   int num_dropped_a_entries, num_dropped_cname_entries;
   domain_whitelist_t* whitelist;
-#ifdef _BLOOM_WHITLIST_H_
-  bloom_whitelist_t* bloom
+#ifdef _BLOOM_WHITELIST_H_
+  bloom_whitelist_t* bloom;
 #endif
 } dns_table_t;
 
 /* whitelist can be NULL, in which case no whitelist is performed. Does not
  * claim ownership of the whitelist. */
-void dns_table_init(dns_table_t* const table, domain_whitelist_t* whitelist);
+void dns_table_init(dns_table_t* const table, domain_whitelist_t* whitelist
+#ifdef _BLOOM_WHITELIST_H_
+        , bloom_whitelist_t* bloom
+#endif
+        );
 
 /* You *must* call this before a table goes out of scope, since tables contain
  * malloced strings that must be freed. */

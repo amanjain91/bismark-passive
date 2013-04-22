@@ -73,6 +73,11 @@ void bloom_whitelist_destroy(bloom_whitelist_t* bloom) {
 
 int bloom_whitelist_lookup(bloom_whitelist_t* bloom, const char* const domain) {
     size_t n;
+    if (DEBUG_BLOOM) {
+        char str[80];
+        sprintf(str, "\t\tSearch for %s\n", domain);
+        perror(str);
+    }
     /* if (DEBUG_BLOOM) printf("Enter bloom_whitelist_lookup(). bloom = %d, nfuncs = %d.\n", bloom, bloom->nfuncs); */
     for (n=0; n<bloom->nfuncs; ++n) {
         if (DEBUG_BLOOM) printf("Bits = %d\t", GETBIT(bloom->a, bloom->funcs[n](domain)%bloom->asize));
