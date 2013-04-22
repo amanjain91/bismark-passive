@@ -88,9 +88,9 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
     malware_flag = -1;
 #endif
 
-    if (table->whitelist
+    if ((table->whitelist
         && !domain_whitelist_lookup(table->whitelist,
-                                    table->a_entries[idx].domain_name)
+                                    table->a_entries[idx].domain_name))
         || !malware_flag) {
       domain_anonymized = 0;
       domain_string = table->a_entries[idx].domain_name;
@@ -135,9 +135,9 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
 #endif
 
 #ifndef DISABLE_ANONYMIZATION
-    if (table->whitelist
+    if ((table->whitelist
         && !domain_whitelist_lookup(table->whitelist,
-                                    table->cname_entries[idx].domain_name)
+                                    table->cname_entries[idx].domain_name))
         || !malware_flag) {
 #endif
       domain_anonymized = 0;
@@ -164,9 +164,9 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
 #endif
 
 #ifndef DISABLE_ANONYMIZATION
-    if (table->whitelist
+    if ((table->whitelist
         && !domain_whitelist_lookup(table->whitelist,
-                                    table->cname_entries[idx].cname)
+                                    table->cname_entries[idx].cname))
         || !malware_flag) {
 #endif
       cname_anonymized = 0;
