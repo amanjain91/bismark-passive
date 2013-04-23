@@ -8,7 +8,6 @@
 #include "constants.h"
 #include "flow_table.h"
 #include "whitelist.h"
-
 #include "bloom-whitelist.h"
 
 /* A single A record from a DNS response. */

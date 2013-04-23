@@ -31,12 +31,8 @@ void bloom_whitelist_init(bloom_whitelist_t* bloom) {
 }
 
 int bloom_whitelist_load(bloom_whitelist_t* bloom) {
-    int nread;
     FILE* fp;
 
-    /* if (DEBUG_BLOOM) printf("\t\t\t1. Addresses %d\t%d\n", bloom->a, bloom->funcs);
-     * if (DEBUG_BLOOM) printf("Memory allocation %d, %d, %d\n", ((bloom->asize+CHAR_BIT-1)/CHAR_BIT), CHAR_BIT, sizeof(char));
-     */
     /* Read downloaded bloom filter into array buffer */
     if(!(bloom->a=calloc(((bloom->asize+CHAR_BIT-1)/CHAR_BIT), sizeof(char)))) {
         /* free(bloom); */
@@ -48,8 +44,7 @@ int bloom_whitelist_load(bloom_whitelist_t* bloom) {
         perror("Error opening bloom filter file.\n");
         return -1;
     }
-    nread = fread(bloom->a, ((bloom->asize+CHAR_BIT-1)/CHAR_BIT), sizeof(char), fp);
-    if (DEBUG_BLOOM) printf("CHECK wl_load(): read %d bytes into bloom->a.\n", nread);
+    fread(bloom->a, ((bloom->asize+CHAR_BIT-1)/CHAR_BIT), sizeof(char), fp);
 
     if(!(bloom->funcs=(hashfunc_t*)malloc(bloom->nfuncs*sizeof(hashfunc_t)))) {
         /* free(bloom); */
@@ -68,7 +63,6 @@ void bloom_whitelist_destroy(bloom_whitelist_t* bloom) {
     free(bloom->a);
     free(bloom->funcs);
     /* free(bloom); */
-    if (DEBUG_BLOOM) printf("Destroy\n");
 }
 
 int bloom_whitelist_lookup(bloom_whitelist_t* bloom, const char* const domain) {
@@ -78,9 +72,7 @@ int bloom_whitelist_lookup(bloom_whitelist_t* bloom, const char* const domain) {
         sprintf(str, "\t\tSearch for %s\n", domain);
         perror(str);
     }
-    /* if (DEBUG_BLOOM) printf("Enter bloom_whitelist_lookup(). bloom = %d, nfuncs = %d.\n", bloom, bloom->nfuncs); */
     for (n=0; n<bloom->nfuncs; ++n) {
-        if (DEBUG_BLOOM) printf("Bits = %d\t", GETBIT(bloom->a, bloom->funcs[n](domain)%bloom->asize));
         if (!(GETBIT(bloom->a, bloom->funcs[n](domain)%bloom->asize))) return -1;
     }
     return 0;

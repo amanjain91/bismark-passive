@@ -7,7 +7,6 @@
 #include "anonymization.h"
 #include "util.h"
 #include "whitelist.h"
-
 #include"bloom-whitelist.h"
 
 #ifdef _BLOOM_WHITELIST_H_
@@ -63,12 +62,6 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
   /* For detecting malware using bloom filter */
   int malware_flag = -1;
 
-#ifdef _BLOOM_WHITELIST_H_
-  if (DEBUG_BLOOM) {
-      printf("ENTER DNS_TABLE_WRITE\n");
-  }
-#endif
-
   if (!gzprintf(handle,
                 "%d %d\n",
                 table->num_dropped_a_entries,
@@ -77,11 +70,6 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
     return -1;
   }
   int idx;
-
-  if (DEBUG_BLOOM) {
-      printf("a records loop\n");
-      printf("a_length = %d", table->a_length);
-  }
   for (idx = 0; idx < table->a_length; ++idx) {
     uint64_t address_digest;
 #ifndef DISABLE_ANONYMIZATION
@@ -97,7 +85,6 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
 
 #ifdef _BLOOM_WHITELIST_H_
     malware_flag = bloom_whitelist_lookup(table->bloom, table->a_entries[idx].domain_name);
-    printf("mal flag = %d, mal domain = %s\n", malware_flag, table->a_entries[idx].domain_name);
 #else
     malware_flag = -1;
 #endif
@@ -137,10 +124,6 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
     return -1;
   }
 
-  if (DEBUG_BLOOM) {
-      printf("cname loop\n");
-      printf("cname_length = %d", table->cname_length);
-  }
   for (idx = 0; idx < table->cname_length; ++idx) {
     unsigned int domain_anonymized, cname_anonymized;
     const char* domain_string;
@@ -148,7 +131,6 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
 
 #ifdef _BLOOM_WHITELIST_H_
     malware_flag = bloom_whitelist_lookup(table->bloom, table->cname_entries[idx].domain_name);
-    printf("mal flag = %d, mal domain = %s\n", malware_flag, table->a_entries[idx].domain_name);
 #else
     malware_flag = -1;
 #endif
@@ -178,8 +160,6 @@ int dns_table_write_update(dns_table_t* const table, gzFile handle) {
 
 #ifdef _BLOOM_WHITELIST_H_
     malware_flag = bloom_whitelist_lookup(table->bloom, table->cname_entries[idx].cname);
-    printf("%d", malware_flag);
-    if (DEBUG_BLOOM) printf("MALWARE: %s: %d\n", table->cname_entries[idx].cname, malware_flag);
 #else
     malware_flag = -1;
 #endif

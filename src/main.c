@@ -605,8 +605,6 @@ int main(int argc, char *argv[]) {
 
   initialize_bismark_id();
 
-  if (DEBUG_BLOOM) fprintf(stderr,"initialize bloom\n");
-
   if (argc < 3 || initialize_domain_whitelist(argv[2])) {
     fprintf(stderr, "Error loading domain whitelist; whitelisting disabled.\n");
   }
