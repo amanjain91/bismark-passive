@@ -1,0 +1,8 @@
+google.com
+gmail.com
+yahoo.com
+hotmail.com
+twitter.com
+facebook.com
+mangahere.com
+youtube.com
