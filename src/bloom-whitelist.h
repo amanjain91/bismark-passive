@@ -3,7 +3,7 @@
 
 #include <zlib.h>
 
-#define DEBUG_BLOOM 1
+#define DEBUG_BLOOM 0 
 
 unsigned int sax_hash(const char *key);
 unsigned int sdbm_hash(const char *key);
